@@ -72,4 +72,8 @@ del my_sic.attrs['flag_values']
 if b_debug:
     print(my_sic)
 
-my_sic.to_netcdf(outfile)
+data_new = data.copy().drop('age_of_sea_ice')
+data_new['my_sic'] = my_sic
+data_new.to_netcdf(outfile)
+
+# cdo -f nc remapbil,T63 outfile new_outfile
