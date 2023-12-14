@@ -23,6 +23,13 @@ outfile = infile.replace('iceage', 'multi_year_sic')
 # Load data
 data = xr.open_dataset(src+infile)
 
+# Get multi-year and first year sea ice maps
+fy_sic = xr.ones_like(data['age_of_sea_ice'])
+fy_sic = fy_sic.where((data.age_of_sea_ice>0) & (data.age_of_sea_ice<=1),0)
+
+my_sic = xr.ones_like(data['age_of_sea_ice'])
+my_sic = my_sic.where((data.age_of_sea_ice>1) & (data.age_of_sea_ice<20),0)
+
 # Plot data
 if(b_debug):
     fig1, ax = plt.subplots(2,2, figsize=(16,9))
@@ -38,26 +45,18 @@ if(b_debug):
     ax[1,0].set_title("First-year sea ice")
     ax[1,1].set_title("Multi-year sea ice")
 
-# Get multi-year and first year sea ice maps
-fy_sic = xr.ones_like(data['age_of_sea_ice'])
-fy_sic = fy_sic.where((data.age_of_sea_ice>0) & (data.age_of_sea_ice<=1),0)
+    fig2, ax2 = plt.subplots(1,3,figsize=(19,5))
 
-my_sic = xr.ones_like(data['age_of_sea_ice'])
-my_sic = my_sic.where((data.age_of_sea_ice>1) & (data.age_of_sea_ice<20),0)
+    fy_sic.isel(time=0).plot(ax=ax2[0], cbar_kwargs={'label': "First-year sea ice cover"})
+    my_sic.isel(time=0).plot(ax=ax2[1], cbar_kwargs={'label': "Multi-year sea ice cover"})
+    (fy_sic+my_sic).isel(time=0).plot(ax=ax2[2], cbar_kwargs={'label': "Sea ice cover"})
 
-# Plot them
-fig2, ax2 = plt.subplots(1,3,figsize=(19,5))
+    ax2[0].set_title("First-year sea ice cover")
+    ax2[1].set_title("Multi-year sea ice cover")
+    ax2[2].set_title("sea ice cover")
 
-fy_sic.isel(time=0).plot(ax=ax2[0], cbar_kwargs={'label': "First-year sea ice cover"})
-my_sic.isel(time=0).plot(ax=ax2[1], cbar_kwargs={'label': "Multi-year sea ice cover"})
-(fy_sic+my_sic).isel(time=0).plot(ax=ax2[2], cbar_kwargs={'label': "Sea ice cover"})
-
-ax2[0].set_title("First-year sea ice cover")
-ax2[1].set_title("Multi-year sea ice cover")
-ax2[2].set_title("sea ice cover")
-
-# Show it
-plt.show(block=False)
+    # Show it
+    plt.show(block=False)
 
 # Rename variable name and attributes
 my_sic = my_sic.rename('my_sic')
