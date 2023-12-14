@@ -16,10 +16,12 @@ b_debug = True
 today = date.today()
 
 # TODO: Use yml for steering
-src = '/data/iceage_nh_12.5km_20200101_20201231_v4.1.nc'
+src = '/data/'
+infile = 'iceage_nh_12.5km_20200101_20201231_v4.1.nc'
+outfile = infile.replace('iceage', 'multi_year_sic')
 
 # Load data
-data = xr.open_dataset(src)
+data = xr.open_dataset(src+infile)
 
 # Plot data
 if(b_debug):
@@ -70,3 +72,5 @@ del my_sic.attrs['flag_values']
 
 if b_debug:
     print(my_sic)
+
+my_sic.to_netcdf(outfile)
