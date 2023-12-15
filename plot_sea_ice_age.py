@@ -63,7 +63,13 @@ if(b_debug):
     ax2[2].set_title("sea ice cover")
 
     # Show it
-    plt.show(block=False)
+    if b_interactive:
+        plt.show(block=False)
+    else:
+        if not os.path.isdir('plots'):
+            os.mkdir('plots')
+        fig1.savefig('plots/sea_ice_age.png')
+        fig2.savefig('plots/fy_my_sic.png')
 
 # Rename variable name and attributes
 my_sic = my_sic.rename('my_sic')
