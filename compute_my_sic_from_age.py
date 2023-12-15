@@ -86,7 +86,7 @@ if b_debug:
     print(my_sic)
 
 data_new = data.copy().drop('age_of_sea_ice')
-data_new['my_sic'] = my_sic
+data_new['my_sic'] = my_sic.astype(float)
 data_new = data_new.drop_vars(['latitude', 'longitude'])
 #data_new = data_new.rename({'latitude':'lat', 'longitude':'lon'})
 data_new.to_netcdf(outfile)
@@ -95,5 +95,5 @@ if b_debug:
     print(data_new)
 
 # Remap to lat-lon
-os.system('bash ./cdo_remap.sh %s %s %s' % (outfile, outfile.replace('12.5km', 't63'), 't63grid'))
+os.system('bash ./cdo_remap.sh %s %s %s %s' % ('remapcon', outfile, outfile.replace('12.5km', 't63'), 't63grid'))
     

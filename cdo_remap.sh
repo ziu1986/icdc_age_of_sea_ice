@@ -4,14 +4,15 @@ source ~/bin/setpaths
 use_conda
 conda activate cdo
 
-infile=${1}
-outfile=${2}
-res=${3}
+remapping=${1}
+infile=${2}
+outfile=${3}
+res=${4}
 
 echo "cdo_remap.sh"
 
 if [[ -f ${outfile} ]]; then
-    rm ${outfile}
+    rm ${remapping}_${outfile}
 fi
 
-cdo -f nc remapcon,${res} ${infile} ${outfile}
+cdo -f nc ${remapping},${res} ${infile} ${remapping}_${outfile}
