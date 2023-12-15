@@ -94,6 +94,6 @@ data_new.to_netcdf(outfile)
 if b_debug:
     print(data_new)
 
-# Remap to lat-lon -> write shell script
-#os.system('cdo -f nc remapbil,t63grid %s %s' % (outfile, outfile.replace('12.5km', 't63')))
+# Remap to lat-lon
+os.system('bash ./cdo_remap.sh %s %s %s' % (outfile, outfile.replace('12.5km', 't63'), 't63grid'))
     
