@@ -13,6 +13,13 @@ from datetime import date
 plt.close('all')
 
 b_debug = True
+b_interactive = hasattr(sys, 'ps1')
+
+if b_interactive:
+    print("We are running from the interpreter! All plots will be shown in debug mode.")
+else:
+    print("We are running from the command line! All plots will be redirected to file in debug mode.")
+
 today = date.today()
 
 # TODO: Use yml for steering
@@ -74,6 +81,12 @@ if b_debug:
 
 data_new = data.copy().drop('age_of_sea_ice')
 data_new['my_sic'] = my_sic
+data_new = data_new.drop_vars(['latitude', 'longitude'])
+#data_new = data_new.rename({'latitude':'lat', 'longitude':'lon'})
 data_new.to_netcdf(outfile)
 
-# cdo -f nc remapbil,T63 outfile new_outfile
+if b_debug:
+    print(data_new)
+
+# Remap to lat-lon
+#os.system('cdo -f nc remapbil,t63grid %s %s' % (outfile, outfile.replace('12.5km', 't63')))
