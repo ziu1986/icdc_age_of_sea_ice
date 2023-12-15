@@ -10,7 +10,7 @@ res=${3}
 
 echo "cdo_remap.sh"
 
-if -f ${outfile}; then
+if [[ -f ${outfile} ]]; then
     rm ${outfile}
 fi
 
