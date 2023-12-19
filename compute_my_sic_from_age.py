@@ -76,7 +76,7 @@ my_sic = my_sic.rename('my_sic')
 my_sic.attrs['short_name'] = 'my sic'
 my_sic.attrs['long_name'] = 'multi-year sea_ice_cover'
 my_sic.attrs['standard_name'] = 'multi-year sea_ice_cover'
-my_sic.attrs['units'] = 1
+my_sic.attrs['units'] = 'fraction'
 my_sic.attrs['history'] = "%s: Stefanie Falk (stefanie.falk@kit.edu): Extracted multi-year sea ice cover with plot_sea_ice_age.py" % today
 my_sic.attrs['cite'] = "Tschudi, M., W. N. Meier, J. S. Stewart, C. Fowler, and J. Maslanik. 2023. EASE-Grid Sea Ice Age, Version 4.1, [indicate subset used]. Boulder, Colorado USA: NASA National Snow and Ice Data Center Distributed Active Archive Center. https://nsidc.org/data/nsidcc-0611. https://doi.org/10.5067/UTAV7490FEPB [last access date: July 24, 2023]."
 my_sic.attrs['support'] = "ICDC, CEN, University of Hamburg"
@@ -88,7 +88,7 @@ if b_debug:
 data_new = data.copy().drop('age_of_sea_ice')
 data_new['my_sic'] = my_sic.astype(float)
 data_new = data_new.drop_vars(['latitude', 'longitude'])
-#data_new = data_new.rename({'latitude':'lat', 'longitude':'lon'})
+data_new = data_new.fillna(0)
 data_new.to_netcdf(outfile)
 
 if b_debug:
