@@ -15,4 +15,4 @@ if [[ -f ${outfile} ]]; then
     rm ${remapping}_${outfile}
 fi
 
-cdo -f nc ${remapping},${res} ${infile} ${remapping}_${outfile}
+cdo -f nc -setmisstoc,0 -${remapping},${res} ${infile} ${remapping}_${outfile}
