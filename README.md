@@ -1,0 +1,28 @@
+# Compute multi-year sea ice cover fraction
+
+> Author: Stefanie Falk (Stefanie.Falk@kit.edu)
+> Date: 2023-12-19
+
+The python script `compute_my_sic_from_age.py` computes multi-year sea ice cover fractions based on the ICDC data set ("Sea-ice age for Arctic from NSIDC")[https://www.cen.uni-hamburg.de/en/icdc/data/cryosphere/seaiceage-arctic.html].
+
+For this purpose, the data which contains an estimated age of the sea ice (age distribution 1--~6 years) is split into first year sea ice (0,1) and multi-year sea ice [1,20).
+
+Each grid cell in the ICDC data is only assigned with one particular age!
+
+Hence, for the purpose of computing fractional aged sea ice cover, each grid cell containing multi-year sea ice is assigned a value of 1, each cell containing first year sea ice is assigned a value of 0. (NANs are also set to zero).
+
+Using the bash script `cdo_remap.sh` these data in regional polar-centric coordinates are remapped, e.g. conservatively, to a regular Gaussian grid, e.g. `T63` and missing values are set to 0, assuming all other regions do not contain multi-year sea ice.
+
+To run the script do
+
+```bash
+python3 ./compute_my_sic_from_age.py
+```
+
+TODO:
+
+-[ ] Use YML to steer the script
+-[ ] Put bash script into `tools` directory
+-[ ] Define a conda environment file to install a compatible cdo as well and use that in the bash script
+-[ ] Clean up and improve the plotting
+-[ ] Define debug option from command line
