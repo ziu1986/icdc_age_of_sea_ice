@@ -3,21 +3,54 @@
 # Obs: Data is strongly biased towards older sea ice 
 # Author: Stefanie Falk (KIT) - 2023-12-14
 
-import os, sys, glob
+import os, sys, glob, shutil
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
 import yaml
 
 
-def init(config_file):
+def init():
+    func_name = 'init'
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(sys.argv)
+    parser.add_argument(dest='config_file', nargs='?', default="examples/user_config.yml", help='Configuration file')
+    parser.add_argument('-v', dest='verbose', action='store_true')
+    parser.add_argument('--debug', dest='debug', action='store_true')
+    parser.add_argument('--clean', dest='clean', action='store_true')
+    args = parser.parse_args()
+    print_msg(func_name, r"Loading configuration: %s" % args.config_file)
     # Read configuration
-    with open(r'%s' % config_file) as file:
+    with open(r'%s' % args.config_file) as file:
         config_list = yaml.load(file, Loader=yaml.FullLoader)
     file.close()
-    return(config_list)
+    return(config_list, args)
+
+def print_msg(func_name, *message, **kargs):
+    mode = kargs.get("mode", None)
+    if mode=='debug':
+        mode_str = "*debug*\n......"
+    elif mode=='verbose':
+        mode_str= "..."
+    elif mode=='error':
+        mode_str='ERROR:'
+    else:
+        mode_str= "-> "
+    print("%s%s()" % (mode_str, func_name), *message)
+
+def make_clean(dir_list):
+    func_name = 'make_clean'
+    print_msg(func_name, "Removing directories")
+    for key in dir_list.keys():
+        dir = dir_list[key]
+        if os.path.exists(dir) and dir != '.':
+            print_msg(func_name, dir)
+            shutil.rmtree(dir)
+    print_msg(func_name, "Done cleaning up.")
 
 def plot_icdc(*arg,**kwarg):
+    func_name = 'plot_icdc'
     # Process function arguments
     data = arg[0]
     # Age >= 20 indicates land; 0 indicates ocean
@@ -36,6 +69,7 @@ def plot_icdc(*arg,**kwarg):
     return(fig)
 
 def plot_sic(*arg, **kwarg):
+    func_name = 'plot_sic'
     # Process function arguments
     fy_sic = arg[0]
     my_sic = arg[1]
@@ -57,7 +91,21 @@ def plot_sic(*arg, **kwarg):
     # Plot the remapping result
 
 def main():
-    
+    # Configuration
+    func_name = 'main'
+    config, args = init()
+    # YML
+    dirs = config['directories']
+    nc_attrs = config['nc_attributes']
+    infile = config['files']['input']
+    outfile = infile.replace('iceage', 'multi_year_sic')
+    remapping_strategy = config['remapping']['strategy']
+    remapping_resolution = config['remapping']['grid']
+    # Command line parser
+    verbose = args.verbose
+    debug = args.debug
+    clean = args.clean
+
     b_debug = True
     b_interactive = hasattr(sys, 'ps1')
 
@@ -66,19 +114,10 @@ def main():
     else:
         print("INFO: We are running from the command line! All plots will be redirected to file in debug mode.")   
     
-    # Read configuration
-    config = init("config.yml")
-    src = config['directories']['input']
-    tgt = config['directories']['output']
-    plotdir = config['directories']['plots']
-    nc_attrs = config['nc_attributes']
-    infile = config['files']['input']
-    outfile = infile.replace('iceage', 'multi_year_sic')
-    remapping_strategy = config['remapping']['strategy']
-    remapping_resolution = config['remapping']['grid']
+    
 
     # Load data
-    data = xr.open_dataset(os.sep.join([src, infile]))
+    data = xr.open_dataset(os.sep.join([dirs['input'], infile]))
 
     # Get multi-year sea ice maps
     my_sic = xr.ones_like(data['age_of_sea_ice'])
@@ -99,10 +138,10 @@ def main():
         if b_interactive:
             plt.show(block=False)
         else:
-            if not os.path.isdir(plotdir):
-                os.mkdir(plotdir)
-            fig1.savefig("%s" % os.sep.join([plotdir, 'sea_ice_age.png']))
-            fig2.savefig("%s" % os.sep.join([plotdir, 'fy_my_sic.png']))
+            if not os.path.isdir(dirs['plots']):
+                os.mkdir(dirs['plots'])
+            fig1.savefig("%s" % os.sep.join([dirs['plots'], 'sea_ice_age.png']))
+            fig2.savefig("%s" % os.sep.join([dirs['plots'], 'fy_my_sic.png']))
 
     # Rename variable name and attributes
     my_sic = my_sic.rename('my_sic')
@@ -120,13 +159,13 @@ def main():
     data_new = data_new.drop_vars(['latitude', 'longitude'])
     data_new = data_new.fillna(0)
     # Write dataset
-    data_new.to_netcdf(os.sep.join([tgt, outfile]))
+    data_new.to_netcdf(os.sep.join([dirs['output'], outfile]))
 
     if b_debug:
         print(data_new)
 
     # Remap to lat-lon
-    os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % (remapping_strategy, os.sep.join([tgt, outfile]), os.sep.join([tgt, outfile.replace('12.5km', remapping_resolution)]), '%sgrid' % remapping_resolution))
+    os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % (remapping_strategy, os.sep.join([dirs['output'], outfile]), os.sep.join([dirs['output'], outfile.replace('12.5km', remapping_resolution)]), '%sgrid' % remapping_resolution))
         
 if __name__ == "__main__":
     main()
