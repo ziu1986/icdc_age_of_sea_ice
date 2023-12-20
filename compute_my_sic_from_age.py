@@ -49,6 +49,16 @@ def make_clean(dir_list):
             shutil.rmtree(dir)
     print_msg(func_name, "Done cleaning up.")
 
+def make_dirs(dir_list, **kargs):
+    func_name = 'make_dirs'
+    debug = kargs.get('debug', False)
+    for key in dir_list.keys():
+        if not os.path.exists(dir_list[key]):
+            if debug: print_msg(func_name, "Creating directory %s" % (dir_list[key]), mode=debug)
+            os.makedirs(dir_list[key])
+        else:
+            if debug: print_msg(func_name, "Nothing to do.", mode=debug)
+
 def plot_icdc(*arg,**kwarg):
     func_name = 'plot_icdc'
     # Process function arguments
@@ -95,9 +105,10 @@ def main():
     func_name = 'main'
     config, args = init()
     # YML
-    dirs = config['directories']
+    input = config['input']
+    tgt = config['target']
     nc_attrs = config['nc_attributes']
-    infile = config['files']['input']
+    infile = input['files']
     outfile = infile.replace('iceage', 'multi_year_sic')
     remapping_strategy = config['remapping']['strategy']
     remapping_resolution = config['remapping']['grid']
@@ -105,17 +116,26 @@ def main():
     verbose = args.verbose
     debug = args.debug
     clean = args.clean
-
+    #-------------------------------------------------------------------
+    # Clean up and exit
+    if clean:
+        make_clean(tgt)
+        print_msg(func_name, " Exit.")
+        return
+    #-------------------------------------------------------------------
+    # Create directory structure
+    make_dirs(tgt, verbose=verbose, debug=debug)
+    #-------------------------------------------------------------------
     # Check if we run interactively
     b_interactive = hasattr(sys, 'ps1')
     if verbose:
         if b_interactive:
-            print_msg(func_name, "INFO: We are running from the interpreter! All plots will be shown in debug mode.", mode='verbose')
+            print_msg(func_name, "INFO: We are running from the interpreter! All plots will be shown in debug mode.", mode=verbose)
         else:
-            print_msg(func_name, "INFO: We are running from the command line! All plots will be redirected to file in debug mode.", mode='verbose')
+            print_msg(func_name, "INFO: We are running from the command line! All plots will be redirected to file in debug mode.", mode=verbose)
 
     # Load data
-    data = xr.open_dataset(os.sep.join([dirs['input'], infile]))
+    data = xr.open_dataset(os.sep.join([input['dir'], infile]))
 
     # Get multi-year sea ice maps
     my_sic = xr.ones_like(data['age_of_sea_ice'])
@@ -136,10 +156,8 @@ def main():
         if b_interactive:
             plt.show(block=False)
         else:
-            if not os.path.isdir(dirs['plots']):
-                os.mkdir(dirs['plots'])
-            fig1.savefig("%s" % os.sep.join([dirs['plots'], 'sea_ice_age.png']))
-            fig2.savefig("%s" % os.sep.join([dirs['plots'], 'fy_my_sic.png']))
+            fig1.savefig("%s" % os.sep.join([tgt['plots'], 'sea_ice_age.png']))
+            fig2.savefig("%s" % os.sep.join([tgt['plots'], 'fy_my_sic.png']))
 
     # Rename variable name and attributes
     my_sic = my_sic.rename('my_sic')
@@ -157,16 +175,16 @@ def main():
     data_new = data_new.drop_vars(['latitude', 'longitude'])
     data_new = data_new.fillna(0)
     # Write dataset
-    data_new.to_netcdf(os.sep.join([dirs['output'], outfile]))
+    data_new.to_netcdf(os.sep.join([tgt['output'], outfile]))
 
     if debug:
         print(data_new)
 
     # Remap to lat-lon
-    os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % (remapping_strategy, os.sep.join([dirs['output'], outfile]), os.sep.join([dirs['output'], outfile.replace('12.5km', remapping_resolution)]), '%sgrid' % remapping_resolution))
+    os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % (remapping_strategy, os.sep.join([tgt['output'], outfile]), os.sep.join([tgt['output'], outfile.replace('12.5km', remapping_resolution)]), '%sgrid' % remapping_resolution))
         
     # Finish
     print_msg(func_name, " Finished.")
-    
+
 if __name__ == "__main__":
     main()

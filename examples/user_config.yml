@@ -1,9 +1,9 @@
-directories:
-  input: '/data'
-  output: '.'
+input:
+  dir: '/data'
+  files: 'iceage_nh_12.5km_20200101_20201231_v4.1.nc'
+target:
+  output: 'results'
   plots: 'plots'
-files:
-  input: 'iceage_nh_12.5km_20200101_20201231_v4.1.nc'
 nc_attributes:
   short_name: 'my sic'
   long_name: 'multi-year sea_ice_cover'
