@@ -23,11 +23,12 @@ def plot_icdc(*arg,**kwarg):
     # Age >= 20 indicates land; 0 indicates ocean
     data_sel_ice = data.where(data.age_of_sea_ice<20)
     # Plot it
+    levels = np.arange(0,21)
     fig, ax = plt.subplots(2,2, figsize=(16,9))
-    data_sel_ice['age_of_sea_ice'].isel(time=0).plot(ax=ax[0,0])
-    data_sel_ice['age_of_sea_ice'].plot.hist(ax=ax[0,1], bins=21)
-    data_sel_ice['age_of_sea_ice'].where((data.age_of_sea_ice<=1) & (data.age_of_sea_ice>0)).isel(time=0).plot(ax=ax[1,0])
-    data_sel_ice['age_of_sea_ice'].where(data.age_of_sea_ice>1).isel(time=0).plot(ax=ax[1,1])
+    data_sel_ice['age_of_sea_ice'].plot.hist(ax=ax[0,0], bins=21)
+    data_sel_ice['age_of_sea_ice'].isel(time=0).plot(ax=ax[0,1], levels=levels)
+    data_sel_ice['age_of_sea_ice'].where((data.age_of_sea_ice<=1) & (data.age_of_sea_ice>0)).isel(time=0).plot(ax=ax[1,0], levels=levels)
+    data_sel_ice['age_of_sea_ice'].where(data.age_of_sea_ice>1).isel(time=0).plot(ax=ax[1,1], levels=levels)
     # Set axis titles
     ax[1,0].set_title("First-year sea ice")
     ax[1,1].set_title("Multi-year sea ice")
@@ -42,9 +43,9 @@ def plot_sic(*arg, **kwarg):
     # Plot it
     fig, ax2 = plt.subplots(1,3,figsize=(19,5))
 
-    (fy_sic+my_sic).isel(time=0).plot(ax=ax2[2], cbar_kwargs={'label': "Sea ice cover"})
-    fy_sic.isel(time=0).plot(ax=ax2[0], cbar_kwargs={'label': "First-year sea ice cover"})
-    my_sic.isel(time=0).plot(ax=ax2[1], cbar_kwargs={'label': "Multi-year sea ice cover"})
+    (fy_sic+my_sic).isel(time=0).plot(ax=ax2[0], cbar_kwargs={'label': "Sea ice cover"})
+    fy_sic.isel(time=0).plot(ax=ax2[1], cbar_kwargs={'label': "First-year sea ice cover"})
+    my_sic.isel(time=0).plot(ax=ax2[2], cbar_kwargs={'label': "Multi-year sea ice cover"})
 
     ax2[0].set_title("sea ice cover")
     ax2[1].set_title("First-year sea ice cover")
@@ -52,7 +53,7 @@ def plot_sic(*arg, **kwarg):
 
     return(fig)
 
-def plot_mysic_result(*arg, **keyarg):
+#def plot_mysic_result(*arg, **keyarg):
     # Plot the remapping result
 
 def main():
@@ -93,6 +94,7 @@ def main():
     
         fig1 = plot_icdc(data)
         fig2 = plot_sic(fy_sic, my_sic)
+        plt.tight_layout()
         # Show it
         if b_interactive:
             plt.show(block=False)
