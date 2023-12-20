@@ -77,15 +77,16 @@ def main():
     # Load data
     data = xr.open_dataset(src+infile)
 
-    # Get multi-year and first year sea ice maps
-    fy_sic = xr.ones_like(data['age_of_sea_ice'])
-    fy_sic = fy_sic.where((data.age_of_sea_ice>0) & (data.age_of_sea_ice<=1),0)
-
+    # Get multi-year sea ice maps
     my_sic = xr.ones_like(data['age_of_sea_ice'])
     my_sic = my_sic.where((data.age_of_sea_ice>1) & (data.age_of_sea_ice<20),0)
 
     # Plot data
     if(b_debug):
+        # Get first year sea ice maps
+        fy_sic = xr.ones_like(data['age_of_sea_ice'])
+        fy_sic = fy_sic.where((data.age_of_sea_ice>0) & (data.age_of_sea_ice<=1),0)
+    
         fig1 = plot_icdc(data)
         fig2 = plot_sic(fy_sic, my_sic)
         # Show it
@@ -107,9 +108,6 @@ def main():
     my_sic.attrs['cite'] = "Tschudi, M., W. N. Meier, J. S. Stewart, C. Fowler, and J. Maslanik. 2023. EASE-Grid Sea Ice Age, Version 4.1, [indicate subset used]. Boulder, Colorado USA: NASA National Snow and Ice Data Center Distributed Active Archive Center. https://nsidc.org/data/nsidcc-0611. https://doi.org/10.5067/UTAV7490FEPB [last access date: July 24, 2023]."
     my_sic.attrs['support'] = "ICDC, CEN, University of Hamburg"
     del my_sic.attrs['flag_values']
-
-    if b_debug:
-        print(my_sic)
 
     data_new = data.copy().drop('age_of_sea_ice')
     data_new['my_sic'] = my_sic.astype(float)
