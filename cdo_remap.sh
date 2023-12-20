@@ -1,8 +1,6 @@
 #! /bin/bash
-# Set up environment
-source ~/bin/setpaths
-use_conda
-conda activate cdo
+# This script uses cdo to remap and extend the NH polar projection 
+# and sets all other grid cells to 0 globally
 
 remapping=${1}
 infile=${2}

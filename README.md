@@ -38,6 +38,6 @@ python3 ./compute_my_sic_from_age.py
 
 - [ ] Use YML to steer the script
 - [ ] Put bash script into `tools` directory
-- [ ] Define a conda environment file to install a compatible cdo as well and use that in the bash script
+- [x] Define a conda environment file to install a compatible cdo as well and use that in the bash script
 - [ ] Clean up and improve the plotting
 - [ ] Define debug option from command line
