@@ -7,12 +7,10 @@ import os, sys, glob
 import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
-from datetime import date
 import yaml
 
 
 def init(config_file):
-    plt.close('all')
     # Read configuration
     with open(r'%s' % config_file) as file:
         config_list = yaml.load(file, Loader=yaml.FullLoader)
@@ -22,17 +20,15 @@ def init(config_file):
 def plot_icdc(*arg,**kwarg):
     # Process function arguments
     data = arg[0]
-
     # Age >= 20 indicates land; 0 indicates ocean
     data_sel_ice = data.where(data.age_of_sea_ice<20)
-
     # Plot it
     fig, ax = plt.subplots(2,2, figsize=(16,9))
     data_sel_ice['age_of_sea_ice'].isel(time=0).plot(ax=ax[0,0])
     data_sel_ice['age_of_sea_ice'].plot.hist(ax=ax[0,1], bins=21)
     data_sel_ice['age_of_sea_ice'].where((data.age_of_sea_ice<=1) & (data.age_of_sea_ice>0)).isel(time=0).plot(ax=ax[1,0])
     data_sel_ice['age_of_sea_ice'].where(data.age_of_sea_ice>1).isel(time=0).plot(ax=ax[1,1])
-
+    # Set axis titles
     ax[1,0].set_title("First-year sea ice")
     ax[1,1].set_title("Multi-year sea ice")
 
@@ -57,12 +53,9 @@ def plot_sic(*arg, **kwarg):
     return(fig)
 
 def main():
-    # Clean up from previous execution
-    plt.close('all')
-
+    
     b_debug = True
     b_interactive = hasattr(sys, 'ps1')
-    today = date.today()
 
     if b_interactive:
         print("INFO: We are running from the interpreter! All plots will be shown in debug mode.")
@@ -73,6 +66,7 @@ def main():
     config = init("config.yml")
     src = config['directories']['input']
     tgt = config['directories']['output']
+    nc_attrs = config['nc_attributes']
     infile = config['files']['input']
     outfile = infile.replace('iceage', 'multi_year_sic')
 
@@ -85,6 +79,8 @@ def main():
 
     # Plot data
     if(b_debug):
+        # Clean up from previous execution
+        plt.close('all')
         # Get first year sea ice maps
         fy_sic = xr.ones_like(data['age_of_sea_ice'])
         fy_sic = fy_sic.where((data.age_of_sea_ice>0) & (data.age_of_sea_ice<=1),0)
@@ -102,15 +98,15 @@ def main():
 
     # Rename variable name and attributes
     my_sic = my_sic.rename('my_sic')
-    my_sic.attrs['short_name'] = 'my sic'
-    my_sic.attrs['long_name'] = 'multi-year sea_ice_cover'
-    my_sic.attrs['standard_name'] = 'multi-year sea_ice_cover'
-    my_sic.attrs['units'] = 'fraction'
-    my_sic.attrs['history'] = "%s: Stefanie Falk (stefanie.falk@kit.edu): Extracted multi-year sea ice cover with plot_sea_ice_age.py" % today
-    my_sic.attrs['cite'] = "Tschudi, M., W. N. Meier, J. S. Stewart, C. Fowler, and J. Maslanik. 2023. EASE-Grid Sea Ice Age, Version 4.1, [indicate subset used]. Boulder, Colorado USA: NASA National Snow and Ice Data Center Distributed Active Archive Center. https://nsidc.org/data/nsidcc-0611. https://doi.org/10.5067/UTAV7490FEPB [last access date: July 24, 2023]."
-    my_sic.attrs['support'] = "ICDC, CEN, University of Hamburg"
+
+    for key in nc_attrs:
+        if(b_debug):
+            print(key, nc_attrs[key])
+        my_sic.attrs[key] = nc_attrs[key]
+
     del my_sic.attrs['flag_values']
 
+    # Prepare dataset
     data_new = data.copy().drop('age_of_sea_ice')
     data_new['my_sic'] = my_sic.astype(float)
     data_new = data_new.drop_vars(['latitude', 'longitude'])
