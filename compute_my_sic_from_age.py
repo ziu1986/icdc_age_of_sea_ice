@@ -66,9 +66,12 @@ def main():
     config = init("config.yml")
     src = config['directories']['input']
     tgt = config['directories']['output']
+    plotdir = config['directories']['plots']
     nc_attrs = config['nc_attributes']
     infile = config['files']['input']
     outfile = infile.replace('iceage', 'multi_year_sic')
+    remapping_strategy = config['remapping']['strategy']
+    remapping_resolution = config['remapping']['grid']
 
     # Load data
     data = xr.open_dataset(os.sep.join([src, infile]))
@@ -91,10 +94,10 @@ def main():
         if b_interactive:
             plt.show(block=False)
         else:
-            if not os.path.isdir('plots'):
-                os.mkdir('plots')
-            fig1.savefig('plots/sea_ice_age.png')
-            fig2.savefig('plots/fy_my_sic.png')
+            if not os.path.isdir(plotdir):
+                os.mkdir(plotdir)
+            fig1.savefig("%s" % os.sep.join([plotdir, 'sea_ice_age.png']))
+            fig2.savefig("%s" % os.sep.join([plotdir, 'fy_my_sic.png']))
 
     # Rename variable name and attributes
     my_sic = my_sic.rename('my_sic')
@@ -118,7 +121,7 @@ def main():
         print(data_new)
 
     # Remap to lat-lon
-    os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % ('remapcon', os.sep.join([tgt, outfile]), os.sep.join([tgt, outfile.replace('12.5km', 't63')]), 't63grid'))
+    os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % (remapping_strategy, os.sep.join([tgt, outfile]), os.sep.join([tgt, outfile.replace('12.5km', remapping_resolution)]), '%sgrid' % remapping_resolution))
         
 if __name__ == "__main__":
     main()
