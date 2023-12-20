@@ -62,7 +62,7 @@ def main():
     else:
         print("INFO: We are running from the command line! All plots will be redirected to file in debug mode.")   
     
-    # TODO: Use yml for steering
+    # Read configuration
     config = init("config.yml")
     src = config['directories']['input']
     tgt = config['directories']['output']

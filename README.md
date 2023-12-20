@@ -36,7 +36,7 @@ python3 ./compute_my_sic_from_age.py
 
 ## TODO:
 - [ ] Modularization
-- [ ] Use YML to steer the script
+- [x] Use YML to steer the script
 - [x] Put bash script into `tools` directory
 - [x] Define a conda environment file to install a compatible cdo as well and use that in the bash script
 - [ ] Clean up and improve the plotting
