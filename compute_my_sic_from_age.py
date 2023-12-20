@@ -19,20 +19,56 @@ def init(config_file):
     file.close()
     return(config_list)
 
+def plot_icdc(*arg,**kwarg):
+    # Process function arguments
+    data = arg[0]
+
+    # Age >= 20 indicates land; 0 indicates ocean
+    data_sel_ice = data.where(data.age_of_sea_ice<20)
+
+    # Plot it
+    fig, ax = plt.subplots(2,2, figsize=(16,9))
+    data_sel_ice['age_of_sea_ice'].isel(time=0).plot(ax=ax[0,0])
+    data_sel_ice['age_of_sea_ice'].plot.hist(ax=ax[0,1], bins=21)
+    data_sel_ice['age_of_sea_ice'].where((data.age_of_sea_ice<=1) & (data.age_of_sea_ice>0)).isel(time=0).plot(ax=ax[1,0])
+    data_sel_ice['age_of_sea_ice'].where(data.age_of_sea_ice>1).isel(time=0).plot(ax=ax[1,1])
+
+    ax[1,0].set_title("First-year sea ice")
+    ax[1,1].set_title("Multi-year sea ice")
+
+    return(fig)
+
+def plot_sic(*arg, **kwarg):
+    # Process function arguments
+    fy_sic = arg[0]
+    my_sic = arg[1]
+
+    # Plot it
+    fig, ax2 = plt.subplots(1,3,figsize=(19,5))
+
+    (fy_sic+my_sic).isel(time=0).plot(ax=ax2[2], cbar_kwargs={'label': "Sea ice cover"})
+    fy_sic.isel(time=0).plot(ax=ax2[0], cbar_kwargs={'label': "First-year sea ice cover"})
+    my_sic.isel(time=0).plot(ax=ax2[1], cbar_kwargs={'label': "Multi-year sea ice cover"})
+
+    ax2[0].set_title("sea ice cover")
+    ax2[1].set_title("First-year sea ice cover")
+    ax2[2].set_title("Multi-year sea ice cover")
+
+    return(fig)
+
 def main():
     # Clean up from previous execution
     plt.close('all')
 
     b_debug = True
     b_interactive = hasattr(sys, 'ps1')
-
-    if b_interactive:
-        print("We are running from the interpreter! All plots will be shown in debug mode.")
-    else:
-        print("We are running from the command line! All plots will be redirected to file in debug mode.")
-
     today = date.today()
 
+    if b_interactive:
+        print("INFO: We are running from the interpreter! All plots will be shown in debug mode.")
+    else:
+        print("INFO: We are running from the command line! All plots will be redirected to file in debug mode.")   
+    
     # TODO: Use yml for steering
     src = '/data/'
     infile = 'iceage_nh_12.5km_20200101_20201231_v4.1.nc'
@@ -50,29 +86,8 @@ def main():
 
     # Plot data
     if(b_debug):
-        fig1, ax = plt.subplots(2,2, figsize=(16,9))
-
-        # Age >= 20 indicates land; 0 indicates ocean
-        data_sel_ice = data.where(data.age_of_sea_ice<20)
-
-        data_sel_ice['age_of_sea_ice'].isel(time=0).plot(ax=ax[0,0])
-        data_sel_ice['age_of_sea_ice'].plot.hist(ax=ax[0,1], bins=21)
-        data_sel_ice['age_of_sea_ice'].where((data.age_of_sea_ice<=1) & (data.age_of_sea_ice>0)).isel(time=0).plot(ax=ax[1,0])
-        data_sel_ice['age_of_sea_ice'].where(data.age_of_sea_ice>1).isel(time=0).plot(ax=ax[1,1])
-
-        ax[1,0].set_title("First-year sea ice")
-        ax[1,1].set_title("Multi-year sea ice")
-
-        fig2, ax2 = plt.subplots(1,3,figsize=(19,5))
-
-        fy_sic.isel(time=0).plot(ax=ax2[0], cbar_kwargs={'label': "First-year sea ice cover"})
-        my_sic.isel(time=0).plot(ax=ax2[1], cbar_kwargs={'label': "Multi-year sea ice cover"})
-        (fy_sic+my_sic).isel(time=0).plot(ax=ax2[2], cbar_kwargs={'label': "Sea ice cover"})
-
-        ax2[0].set_title("First-year sea ice cover")
-        ax2[1].set_title("Multi-year sea ice cover")
-        ax2[2].set_title("sea ice cover")
-
+        fig1 = plot_icdc(data)
+        fig2 = plot_sic(fy_sic, my_sic)
         # Show it
         if b_interactive:
             plt.show(block=False)
@@ -110,4 +125,3 @@ def main():
         
 if __name__ == "__main__":
     main()
-    
