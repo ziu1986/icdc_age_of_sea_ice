@@ -106,15 +106,13 @@ def main():
     debug = args.debug
     clean = args.clean
 
-    b_debug = True
+    # Check if we run interactively
     b_interactive = hasattr(sys, 'ps1')
-
-    if b_interactive:
-        print("INFO: We are running from the interpreter! All plots will be shown in debug mode.")
-    else:
-        print("INFO: We are running from the command line! All plots will be redirected to file in debug mode.")   
-    
-    
+    if verbose:
+        if b_interactive:
+            print_msg(func_name, "INFO: We are running from the interpreter! All plots will be shown in debug mode.", mode='verbose')
+        else:
+            print_msg(func_name, "INFO: We are running from the command line! All plots will be redirected to file in debug mode.", mode='verbose')
 
     # Load data
     data = xr.open_dataset(os.sep.join([dirs['input'], infile]))
@@ -124,7 +122,7 @@ def main():
     my_sic = my_sic.where((data.age_of_sea_ice>1) & (data.age_of_sea_ice<20),0)
 
     # Plot data
-    if(b_debug):
+    if(debug):
         # Clean up from previous execution
         plt.close('all')
         # Get first year sea ice maps
@@ -147,7 +145,7 @@ def main():
     my_sic = my_sic.rename('my_sic')
 
     for key in nc_attrs:
-        if(b_debug):
+        if(debug):
             print(key, nc_attrs[key])
         my_sic.attrs[key] = nc_attrs[key]
 
@@ -161,11 +159,14 @@ def main():
     # Write dataset
     data_new.to_netcdf(os.sep.join([dirs['output'], outfile]))
 
-    if b_debug:
+    if debug:
         print(data_new)
 
     # Remap to lat-lon
     os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % (remapping_strategy, os.sep.join([dirs['output'], outfile]), os.sep.join([dirs['output'], outfile.replace('12.5km', remapping_resolution)]), '%sgrid' % remapping_resolution))
         
+    # Finish
+    print_msg(func_name, " Finished.")
+    
 if __name__ == "__main__":
     main()

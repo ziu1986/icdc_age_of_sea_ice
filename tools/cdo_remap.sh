@@ -10,7 +10,7 @@ res=${4}
 outfile_name=`basename ${outfile}`
 outfile_dir=`dirname ${outfile}`
 
-echo "cdo_remap.sh"
+echo "bash -> cdo_remap.sh"
 
 if [[ -f ${outfile_dir}/${remapping}_${outfile} ]]; then
     rm ${outfile_dir}/${remapping}_${outfile}
