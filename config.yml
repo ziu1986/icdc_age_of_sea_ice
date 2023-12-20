@@ -1,0 +1,5 @@
+directories:
+  input: '/data'
+  output: '.'
+files:
+  input: 'iceage_nh_12.5km_20200101_20201231_v4.1.nc'

@@ -70,12 +70,14 @@ def main():
         print("INFO: We are running from the command line! All plots will be redirected to file in debug mode.")   
     
     # TODO: Use yml for steering
-    src = '/data/'
-    infile = 'iceage_nh_12.5km_20200101_20201231_v4.1.nc'
+    config = init("config.yml")
+    src = config['directories']['input']
+    tgt = config['directories']['output']
+    infile = config['files']['input']
     outfile = infile.replace('iceage', 'multi_year_sic')
 
     # Load data
-    data = xr.open_dataset(src+infile)
+    data = xr.open_dataset(os.sep.join([src, infile]))
 
     # Get multi-year sea ice maps
     my_sic = xr.ones_like(data['age_of_sea_ice'])
