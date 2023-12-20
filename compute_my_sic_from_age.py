@@ -95,5 +95,5 @@ if b_debug:
     print(data_new)
 
 # Remap to lat-lon
-os.system('bash ./cdo_remap.sh %s %s %s %s' % ('remapcon', outfile, outfile.replace('12.5km', 't63'), 't63grid'))
+os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % ('remapcon', outfile, outfile.replace('12.5km', 't63'), 't63grid'))
     
