@@ -52,6 +52,9 @@ def plot_sic(*arg, **kwarg):
 
     return(fig)
 
+def plot_mysic_result(*arg, **keyarg):
+    # Plot the remapping result
+
 def main():
     
     b_debug = True
