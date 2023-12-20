@@ -111,13 +111,14 @@ def main():
     data_new['my_sic'] = my_sic.astype(float)
     data_new = data_new.drop_vars(['latitude', 'longitude'])
     data_new = data_new.fillna(0)
-    data_new.to_netcdf(outfile)
+    # Write dataset
+    data_new.to_netcdf(os.sep.join([tgt, outfile]))
 
     if b_debug:
         print(data_new)
 
     # Remap to lat-lon
-    os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % ('remapcon', outfile, outfile.replace('12.5km', 't63'), 't63grid'))
+    os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % ('remapcon', os.sep.join([tgt, outfile]), os.sep.join([tgt, outfile.replace('12.5km', 't63')]), 't63grid'))
         
 if __name__ == "__main__":
     main()

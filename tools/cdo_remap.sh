@@ -7,10 +7,14 @@ infile=${2}
 outfile=${3}
 res=${4}
 
+outfile_name=`basename ${outfile}`
+outfile_dir=`dirname ${outfile}`
+
 echo "cdo_remap.sh"
 
-if [[ -f ${outfile} ]]; then
-    rm ${remapping}_${outfile}
+if [[ -f ${outfile_dir}/${remapping}_${outfile} ]]; then
+    rm ${outfile_dir}/${remapping}_${outfile}
 fi
 
-cdo -f nc -setmisstoc,0 -${remapping},${res} ${infile} ${remapping}_${outfile}
+cdo -f nc -setmisstoc,0 -${remapping},${res} ${infile} ${outfile_dir}/${remapping}_${outfile_name}
+
