@@ -1,0 +1,16 @@
+name: mysic
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy
+  - scipy
+  - netcdf4
+  - h5netcdf
+  - xarray
+  - matplotlib
+  - pyyaml
+  - cartopy
+  - ipython
+  - cdo=2.2.2
