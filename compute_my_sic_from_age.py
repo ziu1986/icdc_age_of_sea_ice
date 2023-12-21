@@ -67,9 +67,9 @@ def plot_icdc(*arg,**kwarg):
     data_sel_ice = data.where(data.age_of_sea_ice<20)
     # Plot it
     levels = np.arange(0,21)
-    fig, ax = plt.subplots(2,1, figsize=(16,9))
-    data_sel_ice['age_of_sea_ice'].plot.hist(ax=ax[0,0], bins=81)
-    data_sel_ice['age_of_sea_ice'].isel(time=0).plot(ax=ax[0,1], levels=levels)
+    fig, ax = plt.subplots(1,2, figsize=(16,9))
+    data_sel_ice['age_of_sea_ice'].plot.hist(ax=ax[0], bins=81)
+    data_sel_ice['age_of_sea_ice'].isel(time=0).plot(ax=ax[1], levels=levels)
 
     return(fig)
 
@@ -134,7 +134,7 @@ def main():
 
     # Get multi-year sea ice maps
     my_sic = xr.ones_like(data['age_of_sea_ice'])
-    my_sic = my_sic.where((data.age_of_sea_ice>1) & (data.age_of_sea_ice<20),0)
+    my_sic = my_sic.where((data.age_of_sea_ice>=2) & (data.age_of_sea_ice<20),0)
 
     # Plot data
     if(debug):
@@ -142,7 +142,7 @@ def main():
         plt.close('all')
         # Get first year sea ice maps
         fy_sic = xr.ones_like(data['age_of_sea_ice'])
-        fy_sic = fy_sic.where((data.age_of_sea_ice>0) & (data.age_of_sea_ice<=1),0)
+        fy_sic = fy_sic.where((data.age_of_sea_ice>=1) & (data.age_of_sea_ice<2),0)
     
         fig1 = plot_icdc(data)
         fig2 = plot_sic(fy_sic, my_sic)
