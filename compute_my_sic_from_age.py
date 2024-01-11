@@ -119,6 +119,7 @@ def plot(*arg, **kwarg):
     debug = kwarg.pop('debug', False)
     verbose = kwarg.pop('verbose', False)
     interactive = kwarg.pop('interactive', False)
+    prefix = kwarg.pop('fileprefix', '')
 
     if (verbose | debug):
         print_msg(func_name, "Saving plots", mode=verbose)
@@ -132,8 +133,8 @@ def plot(*arg, **kwarg):
     if interactive:
         plt.show(block=False)
     else:
-        fig1.savefig("%s" % os.sep.join([target, 'sea_ice_age.png']))
-        fig2.savefig("%s" % os.sep.join([target, 'fy_my_sic.png']))
+        fig1.savefig("%s" % os.sep.join([target, prefix+'sea_ice_age.png']))
+        fig2.savefig("%s" % os.sep.join([target, prefix+'fy_my_sic.png']))
 
 
 def main():
@@ -173,7 +174,7 @@ def main():
     data_list = []
     file_list = []
     if (infile.find('*')>=0) | (infile.find('?')>=0):
-        for ifile in glob(os.sep.join([input['dir'], infile])[0]):
+        for ifile in glob.glob(os.sep.join([input['dir'], infile])):
             file_list.append(os.path.basename(ifile))
             data_list.append(xr.open_dataset(ifile))
     elif (type(infile)==list):
@@ -184,44 +185,45 @@ def main():
         file_list.append(infile)
         data_list.append(xr.open_dataset(os.sep.join([input['dir'], infile])))
 
-    data = data_list[0]
-    outfile = file_list[0].replace('iceage', 'multi_year_sic')
-    # Get multi-year sea ice maps
-    my_sic = xr.ones_like(data['age_of_sea_ice'])
-    my_sic = my_sic.where((data.age_of_sea_ice>=2) & (data.age_of_sea_ice<20),0)
+    for data, ifile in zip(data_list, file_list):
+        outfile = ifile.replace('iceage', 'multi_year_sic')
+        # Get multi-year sea ice maps
+        my_sic = xr.ones_like(data['age_of_sea_ice'])
+        my_sic = my_sic.where((data.age_of_sea_ice>=2) & (data.age_of_sea_ice<20),0)
 
-    # Plot data
-    if(debug):
-        # Get first year sea ice maps
-        fy_sic = xr.ones_like(data['age_of_sea_ice'])
-        fy_sic = fy_sic.where((data.age_of_sea_ice>=1) & (data.age_of_sea_ice<2),0)
-        plot(data, fy_sic, my_sic, 
-             target=tgt['plots'], interactive=b_interactive, verbose=verbose, debug=debug)
-
-    # Rename variable name and attributes
-    my_sic = my_sic.rename('my_sic')
-
-    for key in nc_attrs:
+        # Plot data
         if(debug):
-            print(key, nc_attrs[key])
-        my_sic.attrs[key] = nc_attrs[key]
+            # Get first year sea ice maps
+            fy_sic = xr.ones_like(data['age_of_sea_ice'])
+            fy_sic = fy_sic.where((data.age_of_sea_ice>=1) & (data.age_of_sea_ice<2),0)
+            plot(data, fy_sic, my_sic, 
+                target=tgt['plots'], fileprefix=outfile.replace('.nc', '-'), 
+                interactive=b_interactive, verbose=verbose, debug=debug)
 
-    del my_sic.attrs['flag_values']
+        # Rename variable name and attributes
+        my_sic = my_sic.rename('my_sic')
 
-    # Prepare dataset
-    data_new = data.copy().drop('age_of_sea_ice')
-    data_new['my_sic'] = my_sic.astype(float)
-    data_new = data_new.drop_vars(['latitude', 'longitude'])
-    data_new = data_new.fillna(0)
-    # Write dataset
-    data_new.to_netcdf(os.sep.join([tgt['output'], outfile]))
+        for key in nc_attrs:
+            if(debug):
+                print(key, nc_attrs[key])
+            my_sic.attrs[key] = nc_attrs[key]
 
-    if debug:
-        print(data_new)
+        del my_sic.attrs['flag_values']
 
-    # Remap to lat-lon
-    os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % (remapping_strategy, os.sep.join([tgt['output'], outfile]), os.sep.join([tgt['output'], outfile.replace('12.5km', remapping_resolution)]), '%sgrid' % remapping_resolution))
-        
+        # Prepare dataset
+        data_new = data.copy().drop('age_of_sea_ice')
+        data_new['my_sic'] = my_sic.astype(float)
+        data_new = data_new.drop_vars(['latitude', 'longitude'])
+        data_new = data_new.fillna(0)
+        # Write dataset
+        data_new.to_netcdf(os.sep.join([tgt['output'], outfile]))
+
+        if debug:
+            print(data_new)
+
+        # Remap to lat-lon
+        os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % (remapping_strategy, os.sep.join([tgt['output'], outfile]), os.sep.join([tgt['output'], outfile.replace('12.5km', remapping_resolution)]), '%sgrid' % remapping_resolution))
+            
     # Finish
     print_msg(func_name, " Finished.")
 
