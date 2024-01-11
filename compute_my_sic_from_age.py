@@ -8,6 +8,7 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
+import datetime as dt
 import yaml
 
 
@@ -64,13 +65,29 @@ def plot_icdc(*arg,**kwarg):
     # Process function arguments
     data = arg[0]
     # Age >= 20 indicates land; 0 indicates ocean
-    data_sel_ice = data.where(data.age_of_sea_ice<20)
+    data_sel_ice = data.where((data.age_of_sea_ice>=1) & (data.age_of_sea_ice<20))
     # Plot it
-    levels = np.arange(0,21)
+    levels = np.arange(1,21)
+    colors = ('darkblue', 'darkblue', 'darkblue',
+              'blue', 'blue', 'blue',
+              'darkgreen', 'darkgreen', 'darkgreen',
+              'orange', 'orange', 'orange')
+    markers = ('^', 's', 'o',
+               '^', 's', 'o',
+               '^', 's', 'o',
+               '^', 's', 'o') 
+    hist_list = []
+    for imonth in np.arange(1,13):
+        hist_list.append(data_sel_ice['age_of_sea_ice'].where(data_sel_ice['age_of_sea_ice'].time.dt.month.isin(imonth), drop=True).mean('time').plot.hist(bins=levels-0.5, histtype='step', label=imonth)[0])
     fig, ax = plt.subplots(1,2, figsize=(16,9))
-    data_sel_ice['age_of_sea_ice'].plot.hist(ax=ax[0], bins=81)
+    for imonth in np.arange(1,13):
+        ax[0].plot(levels[:-1], hist_list[imonth-1], 
+                   color=colors[imonth-1], fillstyle='none', marker=markers[imonth-1], ls=':',  
+                   label=imonth)
     data_sel_ice['age_of_sea_ice'].isel(time=0).plot(ax=ax[1], levels=levels)
-
+    ax[0].set_xticks(levels)
+    ax[0].set_xlim(0,7)
+    ax[0].legend()
     return(fig)
 
 def plot_sic(*arg, **kwarg):
