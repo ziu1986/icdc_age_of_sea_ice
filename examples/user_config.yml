@@ -1,6 +1,6 @@
 input:
   dir: '/data'
-  files: 'iceage_nh_12.5km_20200101_20201231_v4.1.nc'
+  files: 'iceage_nh_12.5km_*_v4.1.nc'
 target:
   output: 'results'
   plots: 'plots'
