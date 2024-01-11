@@ -145,7 +145,6 @@ def main():
     tgt = config['target']
     nc_attrs = config['nc_attributes']
     infile = input['files']
-    outfile = infile.replace('iceage', 'multi_year_sic')
     remapping_strategy = config['remapping']['strategy']
     remapping_resolution = config['remapping']['grid']
     # Command line parser
@@ -171,8 +170,22 @@ def main():
             print_msg(func_name, "INFO: We are running from the command line! All plots will be redirected to file in debug mode.", mode=verbose)
 
     # Load data
-    data = xr.open_dataset(os.sep.join([input['dir'], infile]))
+    data_list = []
+    file_list = []
+    if (infile.find('*')>=0) | (infile.find('?')>=0):
+        for ifile in glob(os.sep.join([input['dir'], infile])[0]):
+            file_list.append(os.path.basename(ifile))
+            data_list.append(xr.open_dataset(ifile))
+    elif (type(infile)==list):
+        for ifile in infile:
+            file_list.append(ifile)
+            data_list.append(xr.open_dataset(os.sep.join([input['dir'], ifile])))
+    else:
+        file_list.append(infile)
+        data_list.append(xr.open_dataset(os.sep.join([input['dir'], infile])))
 
+    data = data_list[0]
+    outfile = file_list[0].replace('iceage', 'multi_year_sic')
     # Get multi-year sea ice maps
     my_sic = xr.ones_like(data['age_of_sea_ice'])
     my_sic = my_sic.where((data.age_of_sea_ice>=2) & (data.age_of_sea_ice<20),0)
