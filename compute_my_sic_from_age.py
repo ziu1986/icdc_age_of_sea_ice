@@ -186,6 +186,7 @@ def main():
         data_list.append(xr.open_dataset(os.sep.join([input['dir'], infile])))
 
     for data, ifile in zip(data_list, file_list):
+        print_msg(func_name, "Process file: %s" % (ifile))
         outfile = ifile.replace('iceage', 'multi_year_sic')
         # Get multi-year sea ice maps
         my_sic = xr.ones_like(data['age_of_sea_ice'])
