@@ -109,8 +109,32 @@ def plot_sic(*arg, **kwarg):
 
     return(fig)
 
-#def plot_mysic_result(*arg, **keyarg):
+def plot(*arg, **kwarg):
+    func_name = 'plot'
     # Plot the remapping result
+    data = arg[0]
+    fysic = arg[1]
+    mysic = arg[2]
+    target = kwarg.pop('target', '.')
+    debug = kwarg.pop('debug', False)
+    verbose = kwarg.pop('verbose', False)
+    interactive = kwarg.pop('interactive', False)
+
+    if (verbose | debug):
+        print_msg(func_name, "Saving plots", mode=verbose)
+
+    # Clean up from previous execution
+    plt.close('all')    
+    fig1 = plot_icdc(data)
+    fig2 = plot_sic(fysic, mysic)
+    plt.tight_layout()
+    # Show it
+    if interactive:
+        plt.show(block=False)
+    else:
+        fig1.savefig("%s" % os.sep.join([target, 'sea_ice_age.png']))
+        fig2.savefig("%s" % os.sep.join([target, 'fy_my_sic.png']))
+
 
 def main():
     # Configuration
@@ -155,21 +179,11 @@ def main():
 
     # Plot data
     if(debug):
-        # Clean up from previous execution
-        plt.close('all')
         # Get first year sea ice maps
         fy_sic = xr.ones_like(data['age_of_sea_ice'])
         fy_sic = fy_sic.where((data.age_of_sea_ice>=1) & (data.age_of_sea_ice<2),0)
-    
-        fig1 = plot_icdc(data)
-        fig2 = plot_sic(fy_sic, my_sic)
-        plt.tight_layout()
-        # Show it
-        if b_interactive:
-            plt.show(block=False)
-        else:
-            fig1.savefig("%s" % os.sep.join([tgt['plots'], 'sea_ice_age.png']))
-            fig2.savefig("%s" % os.sep.join([tgt['plots'], 'fy_my_sic.png']))
+        plot(data, fy_sic, my_sic, 
+             target=tgt['plots'], interactive=b_interactive, verbose=verbose, debug=debug)
 
     # Rename variable name and attributes
     my_sic = my_sic.rename('my_sic')
