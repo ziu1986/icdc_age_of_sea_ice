@@ -31,7 +31,7 @@ $ conda activate mysic
 Use you can use either `ipython` once the environment is installed or execute the script from command line:
 
 ```bash
-python3 ./compute_my_sic_from_age.py
+python3 ./compute_my_sic_from_age.py [examples/user_config.yml] [--debug --verbose --clean]
 ```
 
 ## TODO:
