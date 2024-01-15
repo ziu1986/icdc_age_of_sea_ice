@@ -16,5 +16,5 @@ if [[ -f ${outfile_dir}/${remapping}_${outfile} ]]; then
     rm ${outfile_dir}/${remapping}_${outfile}
 fi
 
-cdo -f nc -setmisstoc,0 -${remapping},${res} ${infile} ${outfile_dir}/${remapping}_${outfile_name}
+cdo -f nc -setmisstoc,0 -${remapping},${res} ${infile} ${outfile_dir}/${remapping}_${outfile_name}~tmp
 
