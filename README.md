@@ -36,6 +36,13 @@ Use you can use either `ipython` once the environment is installed or execute th
 python3 ./compute_my_sic_from_age.py [examples/user_config.yml] [--debug --verbose --clean]
 ```
 
+## For use in EMAC
+Data should be merged along the time axis and monthly means computed. This can be easily achieved with `cdo`:
+
+```bash 
+cdo -s -O monmean -mergetime results/remapcon_multi_year_sic_nh_t43_20*  multi_year_sic_nh_t43_<first_year>0101_<last_year>1231_v4.1.nc
+```
+
 ## TODO:
 - [ ] Modularization
 - [x] Use YML to steer the script
