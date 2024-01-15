@@ -69,11 +69,11 @@ def read_data(*arg,**kwarg):
     data_list = []
     file_list = []
     if (infile.find('*')>=0) | (infile.find('?')>=0):
-        for ifile in glob.glob(os.sep.join([input_dir, infile])):
+        for ifile in sorted(glob.glob(os.sep.join([input_dir, infile]))):
             file_list.append(os.path.basename(ifile))
             data_list.append(xr.open_dataset(ifile))
     elif (type(infile)==list):
-        for ifile in infile:
+        for ifile in sorted(infile):
             file_list.append(ifile)
             data_list.append(xr.open_dataset(os.sep.join([input_dir, ifile])))
     else:
