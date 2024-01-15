@@ -6,6 +6,8 @@
 
 The python script `compute_my_sic_from_age.py` computes multi-year sea ice cover fractions based on the ICDC data set ("Sea-ice age for Arctic from NSIDC")[https://www.cen.uni-hamburg.de/en/icdc/data/cryosphere/seaiceage-arctic.html].
 
+Data are available from 1984 and located at DKRZ/levante `/pool/data/ICDC/ice_and_snow/arctic_sea_ice_age/DATA/`. Requires DKRZ account!
+
 For this purpose, the data which contains an estimated age of the sea ice (age distribution 1--~6 years) is split into first year sea ice (1,2] and multi-year sea ice (2,20).
 
 Each grid cell in the ICDC data is only assigned with one particular age! After reaching its minimum extend in the beginning of September the age index is increased by one. Hence, a sudden shift from first-year to multi-year sea ice occurs.
