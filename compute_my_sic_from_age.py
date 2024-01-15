@@ -28,8 +28,8 @@ def init():
     file.close()
     return(config_list, args)
 
-def print_msg(func_name, *message, **kargs):
-    mode = kargs.get("mode", None)
+def print_msg(func_name, *message, **kwargs):
+    mode = kwargs.get("mode", None)
     if mode=='debug':
         mode_str = "*debug*\n......"
     elif mode=='verbose':
@@ -50,15 +50,18 @@ def make_clean(dir_list):
             shutil.rmtree(dir)
     print_msg(func_name, "Done cleaning up.")
 
-def make_dirs(dir_list, **kargs):
+def make_dirs(dir_list, **kwargs):
     func_name = 'make_dirs'
-    debug = kargs.get('debug', False)
+    debug = kwargs.get('debug', False)
     for key in dir_list.keys():
         if not os.path.exists(dir_list[key]):
             if debug: print_msg(func_name, "Creating directory %s" % (dir_list[key]), mode=debug)
             os.makedirs(dir_list[key])
         else:
             if debug: print_msg(func_name, "Nothing to do.", mode=debug)
+
+def read_data(*arg,**kwarg):
+    func_name = 'read_data'
 
 def plot_icdc(*arg,**kwarg):
     func_name = 'plot_icdc'
