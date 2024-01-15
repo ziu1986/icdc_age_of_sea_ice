@@ -36,11 +36,10 @@ Use you can use either `ipython` once the environment is installed or execute th
 python3 ./compute_my_sic_from_age.py [examples/user_config.yml] [--debug --verbose --clean]
 ```
 
-## For use in EMAC
-Data should be merged along the time axis and monthly means computed. This can be easily achieved with `cdo`:
+If a list of input files is provided with `user_config.yml` all files will be merged along the time axis and monthly means computed. If run for single files this can be easily achieved by hand with `cdo`:
 
 ```bash 
-cdo -s -O monmean -mergetime results/remapcon_multi_year_sic_nh_t43_20*  multi_year_sic_nh_t43_<first_year>0101_<last_year>1231_v4.1.nc
+cdo -s -O monmean -mergetime results/remapcon_multi_year_sic_nh_<res>_*  multi_year_sic_nh_<res>_<first_year>0101_<last_year>1231_v4.1.nc
 ```
 
 ## TODO:
@@ -50,3 +49,4 @@ cdo -s -O monmean -mergetime results/remapcon_multi_year_sic_nh_t43_20*  multi_y
 - [x] Define a conda environment file to install a compatible cdo as well and use that in the bash script
 - [x] Clean up and improve the plotting
 - [x] Define debug option from command line
+- [x] Use sorted dictionary for read in

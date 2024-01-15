@@ -194,7 +194,7 @@ def main():
 
     # Load data
     data_list, file_list = read_data(infile, input['dir'])
-
+    year_list = []
     # Loop over data
     for data, ifile in zip(data_list, file_list):
         print_msg(func_name, "Process file: %s" % (ifile))
@@ -203,6 +203,9 @@ def main():
         my_sic = xr.ones_like(data['age_of_sea_ice'])
         my_sic = my_sic.where((data.age_of_sea_ice>=2) & (data.age_of_sea_ice<20),0)
 
+        year_list.append(dt.datetime.strptime(str(my_sic.time.min().to_numpy()), '%Y-%m-%d %H:%M:%S').date().year)
+        print_msg(func_name, 'Year: ', year_list[-1], mode=debug)
+        
         # Plot data
         if(debug):
             # Get first year sea ice maps
@@ -235,7 +238,18 @@ def main():
 
         # Remap to lat-lon
         os.system('bash ./tools/cdo_remap.sh %s %s %s %s' % (remapping_strategy, os.sep.join([tgt['output'], outfile]), os.sep.join([tgt['output'], outfile.replace('12.5km', remapping_resolution)]), '%sgrid' % remapping_resolution))
-            
+
+    # Merge data along time axis and compute monthly mean
+    if len(year_list) > 1:
+        print_msg(func_name, "Merge data along time axis and compute monthly averages.", mode=verbose)
+        merge_file = outfile.replace("12.5km", remapping_resolution).replace('%s0101' % year_list[-1], '%s0101' % year_list[0])
+        print_msg(func_name, "Merged file: ", merge_file)
+        os.system('cdo -s -O monmean -mergetime %s %s' % (os.sep.join([tgt['output'], '*~tmp']), os.sep.join([tgt['output'], merge_file])))
+        # Clean up results
+        if not debug:
+            print_msg(func_name, "Remove temporary files in results dir: ", tgt['output'], mode=debug)
+            os.system('rm -r %s ' % (os.sep.join([tgt['output'], '*12.5km*'])))
+            os.system('rm -r %s ' % (os.sep.join([tgt['output'], '*~tmp'])))
     # Finish
     print_msg(func_name, " Finished.")
 
