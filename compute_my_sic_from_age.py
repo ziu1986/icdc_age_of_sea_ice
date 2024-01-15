@@ -62,6 +62,25 @@ def make_dirs(dir_list, **kwargs):
 
 def read_data(*arg,**kwarg):
     func_name = 'read_data'
+    # Get arguments
+    infile = arg[0]
+    input_dir = arg[1]
+
+    data_list = []
+    file_list = []
+    if (infile.find('*')>=0) | (infile.find('?')>=0):
+        for ifile in glob.glob(os.sep.join([input_dir, infile])):
+            file_list.append(os.path.basename(ifile))
+            data_list.append(xr.open_dataset(ifile))
+    elif (type(infile)==list):
+        for ifile in infile:
+            file_list.append(ifile)
+            data_list.append(xr.open_dataset(os.sep.join([input_dir, ifile])))
+    else:
+        file_list.append(infile)
+        data_list.append(xr.open_dataset(os.sep.join([input_dir, infile])))
+
+    return(data_list, file_list)
 
 def plot_icdc(*arg,**kwarg):
     func_name = 'plot_icdc'
@@ -174,20 +193,9 @@ def main():
             print_msg(func_name, "INFO: We are running from the command line! All plots will be redirected to file in debug mode.", mode=verbose)
 
     # Load data
-    data_list = []
-    file_list = []
-    if (infile.find('*')>=0) | (infile.find('?')>=0):
-        for ifile in glob.glob(os.sep.join([input['dir'], infile])):
-            file_list.append(os.path.basename(ifile))
-            data_list.append(xr.open_dataset(ifile))
-    elif (type(infile)==list):
-        for ifile in infile:
-            file_list.append(ifile)
-            data_list.append(xr.open_dataset(os.sep.join([input['dir'], ifile])))
-    else:
-        file_list.append(infile)
-        data_list.append(xr.open_dataset(os.sep.join([input['dir'], infile])))
+    data_list, file_list = read_data(infile, input['dir'])
 
+    # Loop over data
     for data, ifile in zip(data_list, file_list):
         print_msg(func_name, "Process file: %s" % (ifile))
         outfile = ifile.replace('iceage', 'multi_year_sic')
