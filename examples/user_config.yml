@@ -1,5 +1,5 @@
 input:
-  dir: '/data'
+  dir: '/data/icdc_iceage_v4.1'
   files: 'iceage_nh_12.5km_*2018*_v4.1.nc'
 target:
   output: 'results'
