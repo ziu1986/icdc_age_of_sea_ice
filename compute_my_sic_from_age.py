@@ -95,11 +95,16 @@ def main():
         merge_file = outfile.replace("12.5km", remapping_resolution).replace('%s0101' % year_list[-1], '%s0101' % year_list[0])
         print_msg(func_name, "Merged file: ", merge_file)
         os.system('cdo -s -O monmean -mergetime %s %s' % (os.sep.join([tgt['output'], '*~tmp']), os.sep.join([tgt['output'], merge_file])))
-        # Clean up results
-        if not debug:
-            print_msg(func_name, "Remove temporary files in results dir: ", tgt['output'], mode=debug)
-            os.system('rm -r %s ' % (os.sep.join([tgt['output'], '*12.5km*'])))
-            os.system('rm -r %s ' % (os.sep.join([tgt['output'], '*~tmp'])))
+    else:
+        # Rename temporary file
+        os.system('mv %s %s' % (os.sep.join([tgt['output'], '*~tmp']), os.sep.join([tgt['output'], outfile.replace("12.5km", remapping_resolution)])))
+
+    # Clean up results
+    if not debug:
+        print_msg(func_name, "Remove temporary files in results dir: ", tgt['output'], mode=debug)
+        os.system('rm -r %s ' % (os.sep.join([tgt['output'], '*12.5km*'])))
+        os.system('rm -rf %s ' % (os.sep.join([tgt['output'], '*~tmp'])))
+
     # Finish
     print_msg(func_name, " Finished.")
 
