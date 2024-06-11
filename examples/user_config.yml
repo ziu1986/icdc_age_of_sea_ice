@@ -9,7 +9,7 @@ nc_attributes:
   long_name: 'multi-year sea_ice_cover'
   standard_name: 'multi-year sea_ice_cover'
   units: 'fraction'
-  history: "Stefanie Falk (stefanie.falk@kit.edu): Extracted multi-year sea ice cover with plot_sea_ice_age.py"
+  history: "Stefanie Falk (stefanie.falk@kit.edu): Extracted multi-year sea ice cover with compute_my_sic_from_age.py"
   cite: "Tschudi, M., W. N. Meier, J. S. Stewart, C. Fowler, and J. Maslanik. 2023. EASE-Grid Sea Ice Age, Version 4.1, [indicate subset used]. Boulder, Colorado USA: NASA National Snow and Ice Data Center Distributed Active Archive Center. https://nsidc.org/data/nsidcc-0611. https://doi.org/10.5067/UTAV7490FEPB [last access date: July 24, 2023]."
   support: "Stefan Kern, ICDC, CEN, University of Hamburg"
 remapping:
