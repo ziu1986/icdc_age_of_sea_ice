@@ -14,4 +14,4 @@ nc_attributes:
   support: "Stefan Kern, ICDC, CEN, University of Hamburg"
 remapping:
   strategy: remapcon
-  grid: t63
+  grid: t42
