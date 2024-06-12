@@ -3,6 +3,7 @@ input:
   files: 'iceage_nh_12.5km_*2018*_v4.1.nc'
 target:
   output: 'results'
+  file: 'ICDC_KIT_1.0_X_multi-year-sic'
   plots: 'plots'
 nc_attributes:
   short_name: 'my sic'

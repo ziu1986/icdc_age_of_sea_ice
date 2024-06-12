@@ -104,6 +104,8 @@ def main():
         print_msg(func_name, "Remove temporary files in results dir: ", tgt['output'], mode=debug)
         os.system('rm -r %s ' % (os.sep.join([tgt['output'], '*12.5km*'])))
         os.system('rm -rf %s ' % (os.sep.join([tgt['output'], '*~tmp'])))
+    
+    os.system('mv %s %s' % (os.sep.join([tgt['output'],'*']), os.sep.join([tgt['output'], "%s_%s01-%s12.nc" % (tgt['file'], year_list[0], year_list[-1])])))
 
     # Finish
     print_msg(func_name, " Finished.")
