@@ -42,7 +42,7 @@ If a list of input files is provided with `user_config.yml` all files will be me
 cdo -s -O monmean -mergetime results/remapcon_multi_year_sic_nh_<res>_*  multi_year_sic_nh_<res>_<first_year>0101_<last_year>1231_v4.1.nc
 ```
 
-### On horeka
+### On HPC
 The user may first allocate a node to run the script on interactively.
 
 ``` bash
@@ -51,11 +51,3 @@ salloc -p cpuonly -n 1 -t 10:00 --mem=5000
 
 And activate the `conda` environment accordingly.
 
-## TODO:
-- [ ] Modularization
-- [x] Use YML to steer the script
-- [x] Put bash script into `tools` directory
-- [x] Define a conda environment file to install a compatible cdo as well and use that in the bash script
-- [x] Clean up and improve the plotting
-- [x] Define debug option from command line
-- [x] Use sorted dictionary for read in
