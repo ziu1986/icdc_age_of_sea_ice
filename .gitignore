@@ -1,2 +1,4 @@
 plots/
 *.nc
+
+__pycache__
